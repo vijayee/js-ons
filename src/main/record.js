@@ -1,6 +1,6 @@
 const OffUrl = require('./off-url')
 const util = require('../utility')
-const base58 = require('base58')
+const bs58 = require('bs58')
 let _offUrl = new WeakMap()
 let _key = new WeakMap()
 let _value = new WeakMap()
@@ -8,10 +8,10 @@ module.exports = class Record {
   constructor (options) {
     if (options instanceof OffUrl) {
       let offUrl = options
-      let key = `${base58.encode(util.hash(offUrl.hash))}O`
+      let key = `${bs58.encode(util.hash(offUrl.fileHash))}O`
       _key.set(this, key)
       _offUrl.set(this, offUrl)
-      let value = util.encrypt(offUrl.toString(), offUrl.hash)
+      let value = util.encrypt(offUrl.toString(), offUrl.fileHash)
       _value.set(this, value)
     } else {
       if (typeof options.key !== 'string') {
@@ -22,7 +22,7 @@ module.exports = class Record {
       if (!Buffer.isBuffer(options.value)) {
         throw new TypeError('Invalid Value')
       } else {
-        _key.set(this, options.key)
+        _value.set(this, options.value)
       }
     }
   }
@@ -34,16 +34,16 @@ module.exports = class Record {
     let value = _value.get(this)
     return value.slice(0)
   }
-  toString (decKey) {
+  content (decKey) {
     let offUrl = _offUrl.get(this)
     if (offUrl) {
       return offUrl.toString()
     }
     if (decKey) {
       let value = _value.get(this)
-      let url = util.decKey(value, decKey)
+      let url = util.decrypt(value, decKey)
       offUrl = OffUrl.parse(url.toString())
-      if (offUrl.hash !== decKey) {
+      if (offUrl.fileHash !== decKey) {
         throw new Error('Invalid Record Detected')
       }
       _offUrl.set(offUrl)
@@ -55,7 +55,10 @@ module.exports = class Record {
   static fromString (url) {
     return new Record(OffUrl.parse(url))
   }
-  static fromJson (obj) {
+  static fromJSON (obj) {
     return new Record(obj)
+  }
+  toJSON () {
+    return {key: this.key, value: this.value}
   }
 }

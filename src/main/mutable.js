@@ -1,5 +1,5 @@
 const util = require('../utility')
-const base58 = require('base58')
+const bs58 = require('bs58')
 let _pubKey = new WeakMap()
 let _privKey = new WeakMap()
 let _key = new WeakMap()
@@ -17,8 +17,8 @@ module.exports = class Mutable {
       _pubKey.set(this, options.pubKey)
     } else {
       let keys = util.generateKeys()
-      _pubKey.set(this, keys.getPublicKey())
-      _privKey.set(this, keys.getPrivateKey())
+      _pubKey.set(this, keys.pubKey)
+      _privKey.set(this, keys.privKey)
     }
   }
   get key () {
@@ -27,10 +27,15 @@ module.exports = class Mutable {
       return key
     } else {
       let pubKey = _pubKey.get(this)
-      key = `${base58.encode(util.hash(pubKey))}I`
+      key = `${bs58.encode(util.hash(pubKey))}I`
       _key.set(this, key)
       return key
     }
+  }
+  get value () {
+    let pubKey = _pubKey.get(this)
+    let contents = _contents.get(this)
+    return {contents, pubKey}
   }
   set privKey (privKey) {
     if (!Buffer.isBuffer(privKey)) {
@@ -44,28 +49,31 @@ module.exports = class Mutable {
   }
   get privKey () {
     let privKey = _privKey.get(this)
-    return privKey
+    return privKey.slice(0)
   }
   get contents () {
     let contents = _contents.get(this)
-    return contents
+    if (!contents) {
+      return contents
+    }
+    let pubKey = _pubKey.get(this)
+    return util.publicDecrypt(contents, pubKey)
   }
-  set contents (value) {
+  set contents (contents) {
     let privKey = _privKey.get(this)
-    if (privKey) {
+    if (!privKey) {
       throw new TypeError('Invalid Private Key')
     }
-    // TODO: Validation of contents
-    _contents.set(this, util.privateEncrypt(value, privKey))
+    console.log(util.isRecord(contents))
+    if (!contents || typeof contents !== 'string' || !util.isRecord(contents)) {
+      throw new TypeError('Invalid Contents')
+    }
+    _contents.set(this, util.privateEncrypt(contents, privKey))
   }
   toString () {
     let pubKey = _pubKey.get(this)
     let contents = _contents.get(this)
     return util.publicDecrypt(contents, pubKey)
   }
-  get value () {
-    let pubKey = _pubKey.get(this)
-    let contents = _contents.get(this)
-    return {contents, pubKey}
-  }
+
 }
