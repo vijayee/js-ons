@@ -1,9 +1,10 @@
 'use strict'
 const crypto = require('crypto')
-const Elliptic = require('elliptic').ec
-const ECIES = require('bitcore-ecies')
-let util = {}
+const EC = require('elliptic').ec
+const ec = 'ed25519'
+const stamp = require('nonce')()
 
+let util = {}
 util.hash = (data) => {
   let hash = crypto.createHash('sha256', { digestLength: 34 })
   hash.update(data)
@@ -35,31 +36,31 @@ util.decrypt = (data, decKey) => {
   return Buffer.concat([decipher.update(ciphertext), decipher.final()])
 }
 util.generateKeys = () => {
-  let curve = new Elliptic('curve25519')
-  let key = curve.genKeyPair()
-  let pubKey = Buffer.from(key.getPublic('hex'), 'hex')
-  let privKey = Buffer.from(key.getPrivate('hex'), 'hex')
-  console.log(pubKey, privKey)
+  let curve = new EC(ec)
+  let keys = curve.genKeyPair()
+  let pubKey = Buffer.from(keys.getPublic('hex'), 'hex')
+  let privKey = Buffer.from(keys.getPrivate('hex'), 'hex')
   return {pubKey, privKey}
 }
-util.privateEncrypt = (data, privKey) => {
-  if (!Buffer.isBuffer(data)) {
-    data = Buffer.from(data)
-  }
-  let curve = new Elliptic('curve25519', {priv: privKey.toString('hex')})
-  let key = curve.genKeyPair()
-  privKey = key.getPrivate()
-  let pubKey = key.getPublic()
-  return ECIES().privateKey(privKey).publicKey(pubKey).encrypt(privKey)
+util.privateSign = (data, privKey) => {
+  let nonce = stamp()
+  let hash = Buffer.concat([util.hash(data), Buffer.from(`${nonce}`)])
+  let curve = new EC(ec)
+  let key = curve.keyFromPrivate(privKey.toString('hex'), 'hex')
+  let sig = key.sign(hash.toString('hex'), 'hex')
+  return {signature: Buffer.from(sig.toDER(), 'hex'), nonce}
 }
-util.publicDecrypt = (data, pubKey) => {
-  return crypto.publicDecrypt(pubKey, data)
+util.publicVerify = (data, signature, nonce, pubKey) => {
+  let hash = Buffer.concat([util.hash(data), Buffer.from(`${nonce}`)])
+  let curve = new EC(ec)
+  let key = curve.keyFromPublic(pubKey.toString('hex'), 'hex')
+  return key.verify(hash, signature.toString('hex'))
 }
 util.isKeyPair = (pubKey, privKey) => {
-  let curve = crypto.createECDH('prime256v1')
-  curve.setPrivateKey(privKey)
-  let key = curve.getPublicKey()
-  return key.equals(pubKey)
+  let curve = new EC(ec)
+  let keys = curve.keyFromPrivate(privKey.toString('hex'), 'hex')
+  let pub = Buffer.from(keys.getPublic('hex'), 'hex')
+  return pub.equals(pubKey)
 }
 util.isMutable = (text) => {
   return /([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+I)\/{0,1}([^ !$`&*()+]*|\\[ !$`&*()+]*)*/.test(text)

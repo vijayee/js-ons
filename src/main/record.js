@@ -34,7 +34,7 @@ module.exports = class Record {
     let value = _value.get(this)
     return value.slice(0)
   }
-  content (decKey) {
+  contents (decKey) {
     let offUrl = _offUrl.get(this)
     if (offUrl) {
       return offUrl.toString()

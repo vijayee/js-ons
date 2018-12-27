@@ -11,7 +11,7 @@ describe('Test Record Creation', function () {
     let obj = {key: record.key, value: record.value}
     let record2 = new Record(obj)
     expect(record2).to.exist
-    expect(record.content(url.fileHash)).to.equal(url.toString())
-    expect(record.content(url.fileHash)).to.equal(record2.content(url.fileHash))
+    expect(record.contents(url.fileHash)).to.equal(url.toString())
+    expect(record.contents(url.fileHash)).to.equal(record2.contents(url.fileHash))
   })
 })
