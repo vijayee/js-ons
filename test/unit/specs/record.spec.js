@@ -1,6 +1,6 @@
 const Record = require('../../../src/main/record')
 const OffUrl = require('../../../src/main/off-url')
-const expect = require('chai').expectnpm
+const expect = require('chai').expect
 describe('Test Record Creation', function () {
   let url = OffUrl.parse('http://localhost:23402/offsystem/v3/offsystem/directory/7850/7sqyF9TUVbdE9UN6JPfAzC4pvUPFBsYjtXsY1m3iqDxb/4YpPRezm6uZeT6R2Mx7t85kpN81xoA7zRD71fwYtv6Hp/html5up-prologue.ofd')
   let record = new Record(url)
