@@ -14,7 +14,7 @@ module.exports = class MutableCache extends EventEmitter {
     if (!path || typeof path !== 'string') {
       throw new TypeError('Invalid path')
     }
-    pth.join(path, '.mutable-cache')
+    path = pth.join(path, '.mutable-cache')
     _path.set(this, path)
     let db = level(path)
     _db.set(this, db)

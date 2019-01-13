@@ -11,7 +11,6 @@ let defaults = {
   scale: 2,
   filterSize: 20000,
   fingerprintSize: 8,
-  hitBoxSize: 100,
   bucketSize: 4,
   httpPort: 33402,
   startPort: 9600,
@@ -21,11 +20,11 @@ let defaults = {
   kbucketSize: 20, // size of each k bucket
   storeCount: 1, // how many nodes to store new data at
   maxFillRate: 72, // in hours
-  redundancy: .30, //30% network redundancy target
+  redundancy: 0.30, // 30% network redundancy target
   batchConcurrency: 10,
   cacheLocation: null,
-  offsHost:'localhost',
-  offsPort:  23402,
+  offsHost: 'localhost',
+  offsPort: 23402,
   bootstrap: [
     {id: '8fHecNZCiTxavnfnskySbeAYCd1bcv1SAVyi1mcZqurH', ip: '73.135.22.132', port: 8200},
     {id: 'GgA9QwCDRgKt9tKLQVjyjnv9wvt7FaeAJo91JWWWmXuK', ip: '73.135.22.132', port: 8201}
@@ -43,14 +42,13 @@ class Config {
     fs.writeFile(path.join(pth, 'config'), JSON.stringify(this.toJSON()), (err) => {
       if (err) {
         console.error(err)
-        //TODO Dunno what to do with this error
+        // TODO Dunno what to do with this error
       }
     })
   }
   load (pth) {
     try {
       let config = JSON.parse(fs.readFileSync(path.join(pth, 'config')))
-
     } catch (ex) {
       return ex
     }
@@ -89,13 +87,13 @@ class Config {
 
   set blockCacheSize (value) {
     if (!Number.isInteger(+value)) {
-      throw new TypeError("Invalid Block Cache Size")
+      throw new TypeError('Invalid Block Cache Size')
     }
     if (value < 300) {
-      throw new TypeError("Block Cache Size Is Too Small")
+      throw new TypeError('Block Cache Size Is Too Small')
     }
     if (value > (1000000 * mb)) {
-      throw new TypeError("Block Cache Size Is Too Large")
+      throw new TypeError('Block Cache Size Is Too Large')
     }
     _blockCacheSize.set(this, value)
     this.save()
@@ -107,13 +105,13 @@ class Config {
 
   set miniBlockCacheSize (value) {
     if (!Number.isInteger(+value)) {
-      throw new TypeError("Invalid Mini Block Cache Size")
+      throw new TypeError('Invalid Mini Block Cache Size')
     }
     if (value < 300) {
-      throw new TypeError("Mini Block Cache Size Is Too Small")
+      throw new TypeError('Mini Block Cache Size Is Too Small')
     }
     if (value > (1000000 * mb)) {
-      throw new TypeError("Mini Block Cache Size Is Too Large")
+      throw new TypeError('Mini Block Cache Size Is Too Large')
     }
     _miniBlockCacheSize.set(this, value)
     this.save()
@@ -125,13 +123,13 @@ class Config {
 
   set nanoBlockCacheSize (value) {
     if (!Number.isInteger(+value)) {
-      throw new TypeError("Invalid Nano Block Cache Size")
+      throw new TypeError('Invalid Nano Block Cache Size')
     }
     if (value < 300) {
-      throw new TypeError("Nano Block Cache Size Is Too Small")
+      throw new TypeError('Nano Block Cache Size Is Too Small')
     }
     if (value > (1000000 * mb)) {
-      throw new TypeError("Nano Block Cache Size Is Too Large")
+      throw new TypeError('Nano Block Cache Size Is Too Large')
     }
     _nanoBlockCacheSize.set(this, value)
     this.save()
@@ -194,8 +192,8 @@ class Config {
   }
 
   set httpPort (value) {
-    if (!Number.isInteger(+value)){
-      throw new TypeError("Invalid HTTP Port")
+    if (!Number.isInteger(+value)) {
+      throw new TypeError('Invalid HTTP Port')
     }
     _httpPort.set(this, value)
     this.save()
@@ -206,8 +204,8 @@ class Config {
   }
 
   set startPort (value) {
-    if (!Number.isInteger(+value)){
-      throw new TypeError("Invalid Port Number")
+    if (!Number.isInteger(+value)) {
+      throw new TypeError('Invalid Port Number')
     }
     _startPort.set(this, value)
     this.save()
@@ -218,8 +216,8 @@ class Config {
   }
 
   set numPortTries (value) {
-    if (!Number.isInteger(+value)){
-      throw new TypeError("Invalid Number of Port Tries")
+    if (!Number.isInteger(+value)) {
+      throw new TypeError('Invalid Number of Port Tries')
     }
     _numPortTries.set(this, value)
     this.save()
@@ -253,7 +251,7 @@ class Config {
     return _redundancy.get(this)
   }
 
-  get cacheLocation  () {
+  get cacheLocation () {
     return _cacheLocation.get(this)
   }
 
@@ -272,8 +270,8 @@ class Config {
     return peers
   }
   set bootstrap (value) {
-    if (!Array.isArray(value)){
-      throw new TypeError("Invalid Boostsrap Peer Array")
+    if (!Array.isArray(value)) {
+      throw new TypeError('Invalid Boostsrap Peer Array')
     }
     _bootstrap.set(this, value)
     this.save()

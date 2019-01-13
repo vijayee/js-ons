@@ -63,10 +63,10 @@ util.isKeyPair = (pubKey, privKey) => {
   return pub.equals(pubKey)
 }
 util.isMutable = (text) => {
-  return /([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+I)\/{0,1}([^ !$`&*()+]*|\\[ !$`&*()+]*)*/.test(text)
+  return /([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{43,45}I)\/{0,1}([^ !$`&*()+]*|\\[ !$`&*()+]*)*/.test(text)
 }
 util.isRecord = (text) => {
-  return /([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+O)\/{0,1}([^ !$`&*()+]*|\\[ !$`&*()+]*)*/.test(text)
+  return /([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{43,45}O)\/{0,1}([^ !$`&*()+]*|\\[ !$`&*()+]*)*/.test(text)
 }
 util.isAddress = (text) => {
   return /([\da-zA-Z]+)/.test(text)

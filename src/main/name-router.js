@@ -4,11 +4,15 @@ const AddressCache = require('./address-cache')
 const http = require('http')
 const util = require('../utility')
 const URL = require('url')
+const mkdirp = require('mkdirp')
+const collect = require('collect-stream')
+const OffUrl = require('./off-url')
 let _mutableCache = new WeakMap()
 let _recordCache = new WeakMap()
 let _addressCache = new WeakMap()
 module.exports = class NameRouter {
   constructor (path) {
+    mkdirp.sync(path)
     _mutableCache.set(this, new MutableCache(path))
     _recordCache.set(this, new RecordCache(path))
     _addressCache.set(this, new AddressCache(path))
@@ -56,16 +60,12 @@ module.exports = class NameRouter {
     let url = URL.parse(offUrl.toString())
     url.method = 'PUT'
 
-    http.get(url, (ws) =>   {
-      if (ws.statusCode !== 200) {
-        return cb(new Error(`Stream failed - Status Code: ${ws.statusCode}`))
-      }
-      ws.setHeader('type', url.contentType)
-      ws.setHeader('file-name', url.fileName)
-      ws.setHeader('stream-length', url.streamLength)
-      ws.setHeader('temporary', 'true')
-      return cb(null, ws)
-    })
+    let ws = http.request(url)
+    ws.setHeader('type', url.contentType)
+    ws.setHeader('file-name', url.fileName)
+    ws.setHeader('stream-length', url.streamLength)
+    ws.setHeader('temporary', 'true')
+    return cb(null, ws)
   }
 
   createReadStream (offUrl, cb) {

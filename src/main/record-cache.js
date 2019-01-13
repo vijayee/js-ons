@@ -14,7 +14,7 @@ module.exports = class RecordCache extends EventEmitter {
     if (!path || typeof path !== 'string') {
       throw new TypeError('Invalid path')
     }
-    pth.join(path, '.record-cache')
+    path = pth.join(path, '.record-cache')
     _path.set(this, path)
     let db = level(path)
     _db.set(this, db)
@@ -38,7 +38,7 @@ module.exports = class RecordCache extends EventEmitter {
   }
   put (record, cb) {
     if (!(record instanceof Record)) {
-      return cb()
+      return cb(new TypeError('Invalid Record'))
     }
     let db = _db.get(this)
     db.put(record.key, record.value, cb)
@@ -56,7 +56,7 @@ module.exports = class RecordCache extends EventEmitter {
       }
       let record
       try {
-        record = Record.fromJson({key, value})
+        record = Record.fromJSON({key, value})
       } catch (ex) {
         return cb(ex)
       }
